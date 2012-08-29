@@ -151,10 +151,62 @@ type QueueJob struct {
 	ShareTreeTickets   int     `xml:"stickets"`
 	QueueName          string  `xml:"queue_name"`
 	Slots              int     `xml:"slots"`
+	Tasks              string  `xml:"tasks"`
 }
 
-func (j QueueJob) Error() bool {
+// DeletionState returns true if the job is in the (d)eletion state
+func (j QueueJob) DeletionState() bool {
+	return strings.Contains(j.State, "d")
+}
+
+// ErrorState returns true if the job is in the (E)rror state
+func (j QueueJob) ErrorState() bool {
 	return strings.Contains(j.State, "E")
+}
+
+// HoldState returns true if the job is in the (h)old state
+func (j QueueJob) HoldState() bool {
+	return strings.Contains(j.State, "h")
+}
+
+// RunningState returns true if the job is in the (r)unning state
+func (j QueueJob) RunningState() bool {
+	return strings.Contains(j.State, "r")
+}
+
+// RestartedState returns true if the job is in the (R)estarted state
+func (j QueueJob) RestartedState() bool {
+	return strings.Contains(j.State, "R")
+}
+
+// SuspendedState returns true if the job is in the (s)uspended state
+func (j QueueJob) SuspendedState() bool {
+	return strings.Contains(j.State, "s")
+}
+
+// QueueSuspendedState returns true if the job is in the queue (S)uspended state
+func (j QueueJob) QueueSuspendedState() bool {
+	return strings.Contains(j.State, "S")
+}
+
+// TransferringState returns true if the job is in the (t)ransferring state
+func (j QueueJob) TransferringState() bool {
+	return strings.Contains(j.State, "t")
+}
+
+// ThresholdState returns true if the job is in the (T)hreshold state
+func (j QueueJob) ThresholdState() bool {
+	return strings.Contains(j.State, "T")
+}
+
+// WaitingState returns true if the job is in the (w)aiting state
+func (j QueueJob) WaitingState() bool {
+	return strings.Contains(j.State, "w")
+}
+
+// QueuedState returns true if the job is in the (q)ueued state
+func (j QueueJob) QueuedState() bool {
+	return strings.Contains(j.State, "q")
 }
 
 type Queue struct {
