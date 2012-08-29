@@ -293,7 +293,7 @@ func GetQueueInfo(u string) (q *QueueInfo, err error) {
 	args := []string{"-xml", "-pri", "-ext"}
 
 	if u != "" {
-		args = append(args, "-u", "*")
+		args = append(args, "-u", u)
 	}
 
 	cmd := exec.Command("qstat", args...)
