@@ -1,3 +1,7 @@
+// Copyright 2012 Kamil Kisiel. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package qstat provides an interface to GridEngine's job and queue status facilities
 package qstat
 
@@ -126,7 +130,7 @@ type JobInfo struct {
 	Type                 int           `xml:"JB_type"`
 }
 
-// Type DetailedJobInfo represents the job information returned by qstat -j
+// DetailedJobInfo represents the job information returned by qstat -j
 type DetailedJobInfo struct {
 	Jobs     []JobInfo `xml:"djob_info>element"`
 	Messages Messages  `xml:"messages>element"`
@@ -224,7 +228,7 @@ type QueueInfo struct {
 	PendingJobs []QueueJob `xml:"job_info>job_list"`   // A list of jobs that are not yet executing in any queue
 }
 
-// Function absPaths converts the paths of a list of PathList structs in to absolute paths of root if they are not already absolute.
+// absPaths converts the paths of a list of PathList structs in to absolute paths of root if they are not already absolute.
 func absPaths(root string, ps []PathList) []PathList {
 	var paths []PathList
 	for _, p := range ps {
