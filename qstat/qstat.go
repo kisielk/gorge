@@ -74,9 +74,9 @@ type SMEMessage struct {
 }
 
 type Task struct {
-	Status      int        `xml:"JAT_status"`
-	TaskNumber  int        `xml:"JAT_task_number"`
-	MessageList JATMessage `xml:"JAT_message_list>ulong_sublist"`
+	Status      int          `xml:"JAT_status"`
+	TaskNumber  int          `xml:"JAT_task_number"`
+	MessageList []JATMessage `xml:"JAT_message_list>ulong_sublist"`
 }
 
 type JobInfo struct {
