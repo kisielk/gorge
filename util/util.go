@@ -1,3 +1,7 @@
+// Copyright 2012 Kamil Kisiel. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package util
 
 import (
@@ -7,7 +11,7 @@ import (
 	"unicode/utf8"
 )
 
-// Type ValidUTF8Reader implements a Reader which reads only bytes that constitute valid UTF-8
+// ValidUTF8Reader implements a Reader which reads only bytes that constitute valid UTF-8
 type ValidUTF8Reader struct {
 	buffer *bufio.Reader
 }
@@ -34,7 +38,7 @@ func (rd ValidUTF8Reader) Read(b []byte) (n int, err error) {
 	return
 }
 
-// Function NewValidUTF8Reader constructs a new ValidUTF8Reader that wraps an existing io.Reader
+// NewValidUTF8Reader constructs a new ValidUTF8Reader that wraps an existing io.Reader
 func NewValidUTF8Reader(rd io.Reader) ValidUTF8Reader {
 	return ValidUTF8Reader{bufio.NewReader(rd)}
 }
