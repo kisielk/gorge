@@ -28,7 +28,7 @@ func TestTaskIDRange(t *testing.T) {
 			t.Errorf("%d: expected error but didn't get one for %v", i, test.in)
 		} else {
 			if out != test.expected {
-				t.Errorf("%d: got %v but expected %v")
+				t.Errorf("%d: got %v but expected %v", i, out, test.expected)
 			}
 		}
 	}
