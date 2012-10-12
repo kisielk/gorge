@@ -88,22 +88,26 @@ func NewTaskIDRange(s string) (TaskIDRange, error) {
 		return TaskIDRange{1, 1, 1}, nil
 	}
 
-	// Try to parse a single number
-	i, err := strconv.ParseInt(s, 10, 64)
-	if err == nil {
-		return TaskIDRange{int(i), int(i), 1}, nil
+	var min, max, step int64 = 1, 1, 1
+	var err error
+
+	parts := strings.Split(s, "-")
+
+	min, err = strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return TaskIDRange{}, fmt.Errorf("could not parse: invalid min (%s)", parts[0])
 	}
 
-	var min, max, step int64 = 1, 1, 1
-	parts := strings.Split(s, "-")
+	// If there's no other parts, max == min
+	max = min
+
 	if len(parts) > 2 {
 		return TaskIDRange{}, fmt.Errorf("could not parse: too many elements in parts split")
 	} else if len(parts) == 2 {
 		tail := strings.Split(parts[1], ":")
 		if len(tail) > 2 {
 			return TaskIDRange{}, fmt.Errorf("could not parse: too many elements in step split")
-		}
-		if len(tail) == 2 {
+		} else if len(tail) == 2 {
 			step, err = strconv.ParseInt(tail[1], 10, 64)
 			if err != nil {
 				return TaskIDRange{}, fmt.Errorf("could not parse: invalid step (%s)", tail[1])
@@ -113,10 +117,6 @@ func NewTaskIDRange(s string) (TaskIDRange, error) {
 		if err != nil {
 			return TaskIDRange{}, fmt.Errorf("could not parse: invalid max (%s)", tail[0])
 		}
-	}
-	min, err = strconv.ParseInt(parts[0], 10, 64)
-	if err != nil {
-		return TaskIDRange{}, fmt.Errorf("could not parse: invalid min (%s)", parts[0])
 	}
 
 	return TaskIDRange{int(min), int(max), int(step)}, nil
