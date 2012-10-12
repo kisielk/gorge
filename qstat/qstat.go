@@ -8,9 +8,12 @@ package qstat
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"github.com/kisielk/gorge/util"
+	"math"
 	"os/exec"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -59,6 +62,78 @@ type TaskIDRange struct {
 	Min  int `xml:"RN_min"`  // The minimum task ID
 	Max  int `xml:"RN_max"`  // The maximum task ID
 	Step int `xml:"RN_step"` // The ID step size between tasks
+}
+
+// NumTasks returns the number of tasks in a range
+func (r TaskIDRange) NumTasks() int {
+	min := float64(r.Min)
+	max := float64(r.Max)
+	step := float64(r.Step)
+	return int(math.Ceil((max - min + 1) / step))
+}
+
+// NewTaskIDRange initializes a TaskIDRange from a string range expression.
+// The range expression is in one of the forms:
+//
+//		* an empty string
+//		* n
+//		* n-m
+//		* n-m:s
+//
+// where n is the first task number, m is the last task number, and s is the
+// step size. An empty string will return a range equivalent to the string "1".
+func NewTaskIDRange(s string) (TaskIDRange, error) {
+	// Blank string is assumed to be a non-array
+	if s == "" {
+		return TaskIDRange{1, 1, 1}, nil
+	}
+
+	// Try to parse a single number
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err == nil {
+		return TaskIDRange{int(i), int(i), 1}, nil
+	}
+
+	var min, max, step int64 = 1, 1, 1
+	parts := strings.Split(s, "-")
+	if len(parts) > 2 {
+		return TaskIDRange{}, fmt.Errorf("could not parse: too many elements in parts split")
+	} else if len(parts) == 2 {
+		tail := strings.Split(parts[1], ":")
+		if len(tail) > 2 {
+			return TaskIDRange{}, fmt.Errorf("could not parse: too many elements in step split")
+		}
+		if len(tail) == 2 {
+			step, err = strconv.ParseInt(tail[1], 10, 64)
+			if err != nil {
+				return TaskIDRange{}, fmt.Errorf("could not parse: invalid step (%s)", tail[1])
+			}
+		}
+		max, err = strconv.ParseInt(tail[0], 10, 64)
+		if err != nil {
+			return TaskIDRange{}, fmt.Errorf("could not parse: invalid max (%s)", tail[0])
+		}
+	}
+	min, err = strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return TaskIDRange{}, fmt.Errorf("could not parse: invalid min (%s)", parts[0])
+	}
+
+	return TaskIDRange{int(min), int(max), int(step)}, nil
+}
+
+// ParseTaskIDRanges creates a slice of TaskIDRange based on the string s
+func ParseTaskIDRanges(s string) ([]TaskIDRange, error) {
+	rangeStrings := strings.Split(s, ",")
+	ranges := []TaskIDRange{}
+	for _, r := range rangeStrings {
+		IDRange, err := NewTaskIDRange(r)
+		if err != nil {
+			return []TaskIDRange{}, err
+		}
+		ranges = append(ranges, IDRange)
+	}
+	return ranges, nil
 }
 
 type JATMessage struct {
@@ -130,6 +205,11 @@ type JobInfo struct {
 	Type                 int           `xml:"JB_type"`
 }
 
+// NumTasks returns the number of tasks in a JobInfo
+func (i JobInfo) NumTasks() int {
+	return i.JobArray.NumTasks()
+}
+
 // DetailedJobInfo represents the job information returned by qstat -j
 type DetailedJobInfo struct {
 	Jobs     []JobInfo `xml:"djob_info>element"`
@@ -156,6 +236,19 @@ type QueueJob struct {
 	QueueName          string  `xml:"queue_name"`
 	Slots              int     `xml:"slots"`
 	Tasks              string  `xml:"tasks"`
+}
+
+func (j QueueJob) NumTasks() int {
+	IDRanges, err := ParseTaskIDRanges(j.Tasks)
+	if err != nil {
+		// Assume any unparseable output is a job with just 1
+		return 1
+	}
+	n := 0
+	for _, r := range IDRanges {
+		n += r.NumTasks()
+	}
+	return n
 }
 
 // DeletionState returns true if the job is in the (d)eletion state
