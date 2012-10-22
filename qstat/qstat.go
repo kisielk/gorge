@@ -7,7 +7,6 @@ package qstat
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"github.com/kisielk/gorge/util"
 	"math"
@@ -353,32 +352,38 @@ func (i *JobInfo) Command() string {
 	return i.ScriptFile + " " + strings.Join(i.JobArgs, " ")
 }
 
-// GetDetailedJobInfo returns a DetailedJobInfo structure contianing all jobs matching the provided pattern.
-// The pattern should match the type wc_job_list as defined in man 1 sge_types
-func GetDetailedJobInfo(pattern string) (q *DetailedJobInfo, err error) {
-	cmd := exec.Command("qstat", "-j", pattern, "-xml")
+// Qstat runs qstat -xml with the given arguments and decodes the xml in to result
+func Qstat(result interface{}, args ...string) error {
+	args = append([]string{"-xml"}, args...)
+	cmd := exec.Command("qstat", args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("qstat: could not get stdout: %s", err)
 	}
-
 	if err = cmd.Start(); err != nil {
-		return nil, err
+		return fmt.Errorf("qstat: could not start qstat: %s", err)
 	}
+	defer cmd.Wait()
+	dec := xml.NewDecoder(util.NewValidUTF8Reader(stdout))
+	dec.Strict = false
+	if err = dec.Decode(result); err != nil {
+		return fmt.Errorf("qstat: could not decode output: %s", err)
+	}
+	return nil
+}
 
-	d := xml.NewDecoder(util.NewValidUTF8Reader(stdout))
-	d.Strict = false
-	if err = d.Decode(&q); err != nil {
+// GetDetailedJobInfo returns a DetailedJobInfo structure contianing all jobs matching the provided pattern.
+// The pattern should match the type wc_job_list as defined in man 1 sge_types
+func GetDetailedJobInfo(pattern string) (*DetailedJobInfo, error) {
+	q := new(DetailedJobInfo)
+	err := Qstat(q, "-j", pattern)
+	if err != nil {
 		// Qstat just produces unparseable XML instead of doing real error reporting. Hurrah.
-		if err.Error() == "XML syntax error on line 3: expected element name after <" {
-			return nil, errors.New("Unknown job: " + pattern)
+		if strings.Contains(err.Error(), "XML syntax error on line 3: expected element name after <") {
+			return nil, fmt.Errorf("qstat: unknown job: %s", pattern)
 		}
-	}
-
-	if err = cmd.Wait(); err != nil {
 		return nil, err
 	}
-
 	return q, nil
 }
 
@@ -386,32 +391,14 @@ func GetDetailedJobInfo(pattern string) (q *DetailedJobInfo, err error) {
 // The argument u can be used to limit the results to a particular user.
 // If u is the string "*" then results are returned for all users.
 // If u is the empty string then results are returned for the current user.
-func GetQueueInfo(u string) (q *QueueInfo, err error) {
-	args := []string{"-xml", "-pri", "-ext"}
-
-	if u != "" {
-		args = append(args, "-u", u)
+func GetQueueInfo(u string) (*QueueInfo, error) {
+	if u == "" {
+		u = "*"
 	}
-
-	cmd := exec.Command("qstat", args...)
-	stdout, err := cmd.StdoutPipe()
+	q := new(QueueInfo)
+	err := Qstat(q, "-pri", "-ext", "-u", u)
 	if err != nil {
 		return nil, err
 	}
-
-	if err = cmd.Start(); err != nil {
-		return nil, err
-	}
-	d := xml.NewDecoder(util.NewValidUTF8Reader(stdout))
-	d.Strict = false
-
-	if err = d.Decode(&q); err != nil {
-		return nil, err
-	}
-
-	if err = cmd.Wait(); err != nil {
-		return nil, err
-	}
-
 	return q, nil
 }
