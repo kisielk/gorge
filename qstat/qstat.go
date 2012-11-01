@@ -225,7 +225,8 @@ type QueueJob struct {
 	Department         string  `xml:"JB_department"`
 	State              string  `xml:"state"`
 	StartTime          string  `xml:"JAT_start_time"`
-	CpuUsage           float64 `xml:"cpu_usage"`
+	SubmissionTime     string  `xml:"JB_submission_time"`
+	CPUUsage           float64 `xml:"cpu_usage"`
 	MemUsage           float64 `xml:"mem_usage"`
 	IOUsage            float64 `xml:"io_usage"`
 	Tickets            int     `xml:"tickets"`
