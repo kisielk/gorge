@@ -162,3 +162,49 @@ func (d DB) QueryAccountingTimes(start, end time.Time) ([]Accounting, error) {
 
 	return as, rows.Err()
 }
+
+type Log struct {
+	JobNumber  int
+	TaskNumber int
+	PETaskId   int
+	JobName    string
+	User       string
+	Account    string
+	Project    string
+	Department string
+	Time       time.Time
+	Event      string
+	State      string
+	Initiator  string
+	Host       string
+	Message    string
+}
+
+const logQuery = `SELECT job_number, task_number, pe_taskid, name, user, account, project, department,
+time, event, state, initiator, host, message
+FROM view_job_log_ordered
+WHERE job_number = $1 AND task_number = $2`
+
+// QueryLogs returns a list of all log entries for a job and task number. A task number of -1 returns a log summary for an
+// array job.
+func (d DB) QueryLogs(j, t int) ([]Log, error) {
+	rows, err := d.db.Query(logQuery, j, t)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []Log
+
+	for rows.Next() {
+		var l Log
+		err := rows.Scan(&l.JobNumber, &l.TaskNumber, &l.PETaskId, &l.JobName, &l.User, &l.Account, &l.Project, &l.Department,
+			&l.Time, &l.Event, &l.State, &l.Initiator, &l.Host, &l.Message)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, l)
+	}
+
+	return logs, err
+}
