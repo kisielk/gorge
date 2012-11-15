@@ -11,9 +11,31 @@ import (
 	"time"
 )
 
+type scannable interface {
+	Scan(v ...interface{}) error
+}
+
 type DB struct {
 	db *sql.DB
 }
+
+// Open creates a new connection to the Arco database.
+// URL is a Postgres connection string in the form:
+//    "postgres://bob:secret@1.2.3.4:5432/mydb?option=value"
+func Open(url string) (*DB, error) {
+	dsn, err := pq.ParseURL(url)
+	if err != nil {
+		return nil, err
+	}
+	db, err := sql.Open("postgres", dsn)
+	return &DB{db}, err
+}
+
+const jobQuery = `SELECT j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, j_owner, 
+j_account, j_priority, j_submission_time, j_project, j_department 
+FROM sge_job 
+WHERE j_job_number = $1 AND j_task_number = -1 
+ORDER BY j_job_number DESC`
 
 type Job struct {
 	JobNumber      int
@@ -27,6 +49,15 @@ type Job struct {
 	SubmissionTime time.Time
 	Project        string
 	Department     string
+}
+
+// QueryJob queries the job table for information about a job number
+func (d DB) QueryJob(n int) (*Job, error) {
+	var j Job
+	r := d.db.QueryRow(jobQuery, n)
+	err := r.Scan(&j.JobNumber, &j.TaskNumber, &j.PETaskId, &j.JobName, &j.Group, &j.Owner,
+		&j.Account, &j.Priority, &j.SubmissionTime, &j.Project, &j.Department)
+	return &j, err
 }
 
 type Accounting struct {
@@ -53,11 +84,14 @@ type Accounting struct {
 	MaxRSS         int
 }
 
-const jobQuery = `SELECT j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, j_owner, 
-j_account, j_priority, j_submission_time, j_project, j_department 
-FROM sge_job 
-WHERE j_job_number = $1 AND j_task_number = -1 
-ORDER BY j_job_number DESC`
+// scanAccounting scans a scannable in to an Accounting struct
+func scanAccounting(r scannable) (*Accounting, error) {
+	var a Accounting
+	err := r.Scan(&a.JobNumber, &a.TaskNumber, &a.PETaskId, &a.Name, &a.Group, &a.Username,
+		&a.Account, &a.Project, &a.Department, &a.SubmissionTime, &a.ARParent, &a.StartTime,
+		&a.EndTime, &a.WallClockTime, &a.CPU, &a.Memory, &a.IO, &a.IOWait, &a.MaxVMem, &a.ExitStatus, &a.MaxRSS)
+	return &a, err
+}
 
 const accountingQuery = `SELECT job_number, task_number, pe_taskid, name, \"group\",
 username, account, project, department, submission_time, ar_parent, start_time, end_time,
@@ -66,63 +100,65 @@ FROM view_accounting
 WHERE job_number = $1
 ORDER BY task_number`
 
-// Open creates a new connection to the Arco database.
-// URL is a Postgres connection string in the form:
-//    "postgres://bob:secret@1.2.3.4:5432/mydb?option=value"
-func Open(url string) (*DB, error) {
-	dsn, err := pq.ParseURL(url)
-	if err != nil {
-		return nil, err
-	}
-	db, err := sql.Open("postgres", dsn)
-	return &DB{db}, err
-}
-
-// QueryJob queries the job table for information about a job number
-func (d DB) QueryJob(n int) (*Job, error) {
-	s, err := d.db.Prepare(jobQuery)
-	if err != nil {
-		return nil, err
-	}
-
-	var j Job
-	r, err := s.Query(n)
-	if err != nil {
-		return nil, err
-	}
-
-	for r.Next() {
-		err = r.Scan(&j.JobNumber, &j.TaskNumber, &j.PETaskId, &j.JobName, &j.Group, &j.Owner,
-			&j.Account, &j.Priority, &j.SubmissionTime, &j.Project, &j.Department)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &j, nil
-}
-
 // QueryAccounting queries the view_accounting view for accounting information for a job number j. 
+// It returns accounting records for all tasks.
 func (d DB) QueryAccounting(j int) ([]Accounting, error) {
-	s, err := d.db.Prepare(accountingQuery)
+	rows, err := d.db.Query(accountingQuery, j)
 	if err != nil {
 		return nil, err
 	}
-
-	r, err := s.Query(j)
+	defer rows.Close()
 
 	var as []Accounting
 
-	for r.Next() {
-		var a Accounting
-		err = r.Scan(&a.JobNumber, &a.TaskNumber, &a.PETaskId, &a.Name, &a.Group, &a.Username,
-			&a.Account, &a.Project, &a.Department, &a.SubmissionTime, &a.ARParent, &a.StartTime,
-			&a.EndTime, &a.WallClockTime, &a.CPU, &a.Memory, &a.IO, &a.IOWait, &a.MaxVMem, &a.ExitStatus, &a.MaxRSS)
+	for rows.Next() {
+		a, err := scanAccounting(rows)
 		if err != nil {
 			return nil, err
 		}
-		as = append(as, a)
+		as = append(as, *a)
 	}
 
-	return as, nil
+	return as, rows.Err()
+}
+
+const accountingTaskQuery = `SELECT job_number, task_number, pe_taskid, name, \"group\",
+username, account, project, department, submission_time, ar_parent, start_time, end_time,
+wallclock_time, cpu, mem, io, iow, maxvmem, exit_status, maxrss,
+FROM view_accounting 
+WHERE job_number = $1 AND task_number = $2`
+
+// QueryAccountingTask queries the view_accounting view for accounting information of a task t of a job j.
+func (d DB) QueryAccountingTask(j, t int) (*Accounting, error) {
+	row := d.db.QueryRow(accountingTaskQuery, j, t)
+	return scanAccounting(row)
+}
+
+const accountingTimesQuery = `SELECT job_number, task_number, pe_taskid, name, \"group\",
+username, account, project, department, submission_time, ar_parent, start_time, end_time,
+wallclock_time, cpu, mem, io, iow, maxvmem, exit_status, maxrss,
+FROM view_accounting 
+WHERE start_time < $1 AND end_time > $2
+ORDER BY job_number, task_number, pe_taskid`
+
+// QueryAccountingTimes queries the view_accounting view for all accounting records of jobs that ran in a given
+// time period.
+func (d DB) QueryAccountingTimes(start, end time.Time) ([]Accounting, error) {
+	rows, err := d.db.Query(accountingTimesQuery, start, end)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var as []Accounting
+
+	for rows.Next() {
+		a, err := scanAccounting(rows)
+		if err != nil {
+			return nil, err
+		}
+		as = append(as, *a)
+	}
+
+	return as, rows.Err()
 }
