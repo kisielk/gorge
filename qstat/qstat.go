@@ -215,29 +215,36 @@ type DetailedJobInfo struct {
 	Messages Messages  `xml:"messages>element"`
 }
 
+// QueueJob represents data about one job in the queue overview
 type QueueJob struct {
-	JobNumber          int     `xml:"JB_job_number"`
-	NormalizedPriority float32 `xml:"JAT_prio"`
-	POSIXPriority      int     `xml:"JB_priority"`
-	Name               string  `xml:"JB_name"`
-	Owner              string  `xml:"JB_owner"`
-	Project            string  `xml:"JB_project"`
-	Department         string  `xml:"JB_department"`
-	State              string  `xml:"state"`
-	StartTime          string  `xml:"JAT_start_time"`
-	SubmissionTime     string  `xml:"JB_submission_time"`
-	CPUUsage           float64 `xml:"cpu_usage"`
-	MemUsage           float64 `xml:"mem_usage"`
-	IOUsage            float64 `xml:"io_usage"`
-	Tickets            int     `xml:"tickets"`
-	OverrideTickets    int     `xml:"otickets"`
-	FairshareTickets   int     `xml:"ftickets"`
-	ShareTreeTickets   int     `xml:"stickets"`
-	QueueName          string  `xml:"queue_name"`
-	Slots              int     `xml:"slots"`
-	Tasks              string  `xml:"tasks"`
+	JobNumber            int     `xml:"JB_job_number"`      // Unique job number
+	POSIXPriority        int     `xml:"JB_priority"`        //  Relative importance due to Posix priority in the range between 0.0 and 1.0
+	NormalizedUrgency    float64 `xml:"JB_nurg"`            // Relative importance due to static urgency in the range between 0.0 and 1.0
+	NormalizedPriority   float64 `xml:"JAT_prio"`           // The GE priority derived from weighted normalized tickets and weighted normalized static urgency
+	NormalizedTickets    float64 `xml:"JAT_ntix"`           //  Relative importance due to JAT_tix amount in the range between 0.0 and 1.0.
+	ResourceContribution float64 `xml:"JB_rrcontr"`         //  Combined contribution to static urgency from all resources.
+	DeadlineContribution float64 `xml:"JB_dlcontr"`         // Contribution to static urgency from job deadline.
+	WaitTimeContribution float64 `xml:"JB_wtcontr"`         // Contribution to static urgency from waiting time.
+	Name                 string  `xml:"JB_name"`            // Job name
+	Owner                string  `xml:"JB_owner"`           // Owner of the job
+	Project              string  `xml:"JB_project"`         // Project name
+	Department           string  `xml:"JB_department"`      // Department name
+	State                string  `xml:"state"`              // State string
+	StartTime            string  `xml:"JAT_start_time"`     // Task start time
+	SubmissionTime       string  `xml:"JB_submission_time"` // Time the job was submitted
+	CPUUsage             float64 `xml:"cpu_usage"`          // CPU usage in seconds
+	MemUsage             float64 `xml:"mem_usage"`          // Memory usage in MB * seconds
+	IOUsage              float64 `xml:"io_usage"`           // IO usage in MB
+	Tickets              int     `xml:"tickets"`            // Number of assigned tickets
+	OverrideTickets      int     `xml:"otickets"`           // Number of assigned override tickets
+	FairshareTickets     int     `xml:"ftickets"`           // Number of assigned fairshare tickets
+	ShareTreeTickets     int     `xml:"stickets"`           // Number of assigned sharetree tickets
+	QueueName            string  `xml:"queue_name"`         // Queue in which the job is executing
+	Slots                int     `xml:"slots"`              // Number of slots
+	Tasks                string  `xml:"tasks"`              // Task string
 }
 
+// NumTasks returns the number of tasks in a QueueJob
 func (j QueueJob) NumTasks() int {
 	IDRanges, err := ParseTaskIDRanges(j.Tasks)
 	if err != nil {
@@ -397,7 +404,7 @@ func GetQueueInfo(u string) (*QueueInfo, error) {
 		u = "*"
 	}
 	q := new(QueueInfo)
-	err := Qstat(q, "-pri", "-ext", "-u", u)
+	err := Qstat(q, "-pri", "-ext", "-urg", "-u", u)
 	if err != nil {
 		return nil, err
 	}

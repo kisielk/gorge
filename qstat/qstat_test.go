@@ -13,6 +13,11 @@ const queueInfo = `<?xml version='1.0'?>
       <JB_job_number>3064076</JB_job_number>
       <JAT_prio>0.67712</JAT_prio>
       <JAT_ntix>1.00000</JAT_ntix>
+      <JB_nurg>0.00064</JB_nurg>
+      <JB_urg>527</JB_urg>
+      <JB_rrcontr>512</JB_rrcontr>
+      <JB_wtcontr>15</JB_wtcontr>
+      <JB_dlcontr>0</JB_dlcontr>
       <JB_nppri>0.25586</JB_nppri>
       <JB_priority>-500</JB_priority>
       <JB_name>QRLOGIN</JB_name>
@@ -40,6 +45,11 @@ const queueInfo = `<?xml version='1.0'?>
       <JB_job_number>3050948</JB_job_number>
       <JAT_prio>0.70234</JAT_prio>
       <JAT_ntix>1.00000</JAT_ntix>
+      <JB_nurg>0.00064</JB_nurg>
+      <JB_urg>527</JB_urg>
+      <JB_rrcontr>512</JB_rrcontr>
+      <JB_wtcontr>15</JB_wtcontr>
+      <JB_dlcontr>0</JB_dlcontr>
       <JB_nppri>0.00000</JB_nppri>
       <JB_priority>-500</JB_priority>
       <JB_name>Something</JB_name>
@@ -78,25 +88,30 @@ func TestQueueInfo(t *testing.T) {
 
 	qj := r.QueuedJobs[0]
 	queuedExpected := QueueJob{
-		JobNumber:          3064076,
-		NormalizedPriority: 0.67712,
-		POSIXPriority:      -500,
-		Name:               "QRLOGIN",
-		Owner:              "bob",
-		Project:            "some_project",
-		Department:         "defaultdepartment",
-		State:              "r",
-		StartTime:          "2012-11-01T13:06:41",
-		SubmissionTime:     "",
-		CPUUsage:           0.0,
-		MemUsage:           0.0,
-		IOUsage:            0.0,
-		Tickets:            666,
-		OverrideTickets:    0,
-		FairshareTickets:   666,
-		ShareTreeTickets:   0,
-		QueueName:          "interactive.q@cluster",
-		Slots:              1,
+		JobNumber:            3064076,
+		NormalizedPriority:   0.67712,
+		NormalizedUrgency:    0.00064,
+		NormalizedTickets:    1,
+		ResourceContribution: 512,
+		WaitTimeContribution: 15,
+		DeadlineContribution: 0,
+		POSIXPriority:        -500,
+		Name:                 "QRLOGIN",
+		Owner:                "bob",
+		Project:              "some_project",
+		Department:           "defaultdepartment",
+		State:                "r",
+		StartTime:            "2012-11-01T13:06:41",
+		SubmissionTime:       "",
+		CPUUsage:             0.0,
+		MemUsage:             0.0,
+		IOUsage:              0.0,
+		Tickets:              666,
+		OverrideTickets:      0,
+		FairshareTickets:     666,
+		ShareTreeTickets:     0,
+		QueueName:            "interactive.q@cluster",
+		Slots:                1,
 	}
 	if !reflect.DeepEqual(qj, queuedExpected) {
 		t.Errorf("Queued job got %v, expected %v", qj, queuedExpected)
@@ -112,25 +127,30 @@ func TestQueueInfo(t *testing.T) {
 
 	pj := r.PendingJobs[0]
 	pendingExpected := QueueJob{
-		JobNumber:          3050948,
-		NormalizedPriority: 0.70234,
-		POSIXPriority:      -500,
-		Name:               "Something",
-		Owner:              "john",
-		Project:            "some_other_project",
-		Department:         "defaultdepartment",
-		State:              "Eqw",
-		StartTime:          "",
-		SubmissionTime:     "2012-10-28T09:47:07",
-		CPUUsage:           0.0,
-		MemUsage:           0.0,
-		IOUsage:            0.0,
-		Tickets:            500,
-		OverrideTickets:    0,
-		FairshareTickets:   500,
-		ShareTreeTickets:   0,
-		QueueName:          "",
-		Slots:              1,
+		JobNumber:            3050948,
+		NormalizedPriority:   0.70234,
+		NormalizedUrgency:    0.00064,
+		NormalizedTickets:    1,
+		POSIXPriority:        -500,
+		ResourceContribution: 512,
+		WaitTimeContribution: 15,
+		DeadlineContribution: 0,
+		Name:                 "Something",
+		Owner:                "john",
+		Project:              "some_other_project",
+		Department:           "defaultdepartment",
+		State:                "Eqw",
+		StartTime:            "",
+		SubmissionTime:       "2012-10-28T09:47:07",
+		CPUUsage:             0.0,
+		MemUsage:             0.0,
+		IOUsage:              0.0,
+		Tickets:              500,
+		OverrideTickets:      0,
+		FairshareTickets:     500,
+		ShareTreeTickets:     0,
+		QueueName:            "",
+		Slots:                1,
 	}
 	if !reflect.DeepEqual(pj, pendingExpected) {
 		t.Errorf("Queued job got %v, expected %v", pj, pendingExpected)
