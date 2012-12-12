@@ -158,50 +158,63 @@ type Task struct {
 }
 
 type JobInfo struct {
-	JobNumber            int           `xml:"JB_job_number"`
-	AdvanceReservation   int           `xml:"JB_ar"`
-	ExecFile             string        `xml:"JB_exec_file"`
-	SubmissionTime       int           `xml:"JB_submission_time"`
-	Owner                string        `xml:"JB_owner"`
-	Uid                  int           `xml:"JB_uid"`
-	Group                string        `xml:"JB_group"`
-	Gid                  int           `xml:"JB_gid"`
-	Account              string        `xml:"JB_account"`
-	MergeStdErr          bool          `xml:"JB_merge_stderr"`
-	MailList             []MailAddress `xml:"JB_mail_list>element"`
-	Project              string        `xml:"JB_project"`
-	Notify               bool          `xml:"JB_notify"`
-	JobName              string        `xml:"JB_job_name"`
-	StdoutPathList       []PathList    `xml:"JB_stdout_path_list>path_list"`
-	AltStdoutPathList    []PathList    `xml:"JB_stdout_path_list>stdout_path_list"` // Alternate stdout path list
-	JobShare             int           `xml:"JB_jobshare"`
-	HardResourceList     []Resource    `xml:"JB_hard_resource_list>qstat_l_requests"`
-	EnvList              []EnvVar      `xml:"JB_env_list>job_sublist"`
-	JobArgs              []string      `xml:"JB_job_args>element>ST_name"`
-	ScriptFile           string        `xml:"JB_script_file"`
-	JobArrayTasks        []Task        `xml:"JB_ja_tasks>ulong_sublist"`
-	Cwd                  string        `xml:"JB_cwd"`
-	StderrPathList       []PathList    `xml:"JB_stderr_path_list>path_list"`
-	AltStderrPathList    []PathList    `xml:"JB_stderr_path_list>stderr_path_list"` // Alternate stderr path list
-	JIDRequestList       []int         `xml:"JB_jid_request_list>element>JRE_job_name"`
-	JIDSuccessorList     []int         `xml:"JB_jid_successor_list>ulong_sublist>JRE_job_number"`
-	Deadline             bool          `xml:"JB_deadline"`
-	ExecutionTime        int           `xml:"JB_execution_time"`
-	CheckpointAttr       int           `xml:"JB_checkpoint_attr"`
-	CheckpointInterval   int           `xml:"JB_checkpoint_interval"`
-	Reserve              bool          `xml:"JB_reserve"`
-	MailOptions          int           `xml:"JB_mail_options"`
-	Priority             int           `xml:"JB_priority"`
-	Restart              int           `xml:"JB_restart"`
-	Verify               bool          `xml:"JB_verify"`
-	ScriptSize           int           `xml:"JB_script_size"`
-	VerifySuitableQueues bool          `xml:"JB_verify_suitable_queues"`
-	SoftWallClockGMT     int           `xml:"JB_soft_wallclock_gmt"`
-	HardWallClockGMT     int           `xml:"JB_hard_wallclock_gmt"`
-	OverrideTickets      int           `xml:"JB_override_tickets"`
-	Version              int           `xml:"JB_version"`
-	JobArray             TaskIDRange   `xml:"JB_ja_structure>task_id_range"`
-	Type                 int           `xml:"JB_type"`
+	JobNumber               int           `xml:"JB_job_number"`
+	AdvanceReservation      int           `xml:"JB_ar"`
+	ExecFile                string        `xml:"JB_exec_file"`
+	SubmissionTime          int           `xml:"JB_submission_time"`
+	Owner                   string        `xml:"JB_owner"`
+	Uid                     int           `xml:"JB_uid"`
+	Group                   string        `xml:"JB_group"`
+	Gid                     int           `xml:"JB_gid"`
+	Account                 string        `xml:"JB_account"`
+	MergeStdErr             bool          `xml:"JB_merge_stderr"`
+	MailList                []MailAddress `xml:"JB_mail_list>element"`
+	Project                 string        `xml:"JB_project"`
+	Notify                  bool          `xml:"JB_notify"`
+	JobName                 string        `xml:"JB_job_name"`
+	StdoutPathList          []PathList    `xml:"JB_stdout_path_list>path_list"`
+	AltStdoutPathList       []PathList    `xml:"JB_stdout_path_list>stdout_path_list"` // Alternate stdout path list
+	JobShare                int           `xml:"JB_jobshare"`
+	QstatHardResourceList   []Resource    `xml:"JB_hard_resource_list>qstat_l_requests"` // One type of hard resource list qstat has. Use HardResourceRequest() to get the full list.
+	ElementHardResourceList []Resource    `xml:"JB_hard_resource_list>element"`          // Another type of hard resource list. Use HardResourceRequest() to get the full list.
+	EnvList                 []EnvVar      `xml:"JB_env_list>job_sublist"`
+	JobArgs                 []string      `xml:"JB_job_args>element>ST_name"`
+	ScriptFile              string        `xml:"JB_script_file"`
+	JobArrayTasks           []Task        `xml:"JB_ja_tasks>ulong_sublist"`
+	Cwd                     string        `xml:"JB_cwd"`
+	StderrPathList          []PathList    `xml:"JB_stderr_path_list>path_list"`
+	AltStderrPathList       []PathList    `xml:"JB_stderr_path_list>stderr_path_list"` // Alternate stderr path list
+	JIDRequestList          []int         `xml:"JB_jid_request_list>element>JRE_job_name"`
+	JIDSuccessorList        []int         `xml:"JB_jid_successor_list>ulong_sublist>JRE_job_number"`
+	Deadline                bool          `xml:"JB_deadline"`
+	ExecutionTime           int           `xml:"JB_execution_time"`
+	CheckpointAttr          int           `xml:"JB_checkpoint_attr"`
+	CheckpointInterval      int           `xml:"JB_checkpoint_interval"`
+	Reserve                 bool          `xml:"JB_reserve"`
+	MailOptions             int           `xml:"JB_mail_options"`
+	Priority                int           `xml:"JB_priority"`
+	Restart                 int           `xml:"JB_restart"`
+	Verify                  bool          `xml:"JB_verify"`
+	ScriptSize              int           `xml:"JB_script_size"`
+	VerifySuitableQueues    bool          `xml:"JB_verify_suitable_queues"`
+	SoftWallClockGMT        int           `xml:"JB_soft_wallclock_gmt"`
+	HardWallClockGMT        int           `xml:"JB_hard_wallclock_gmt"`
+	OverrideTickets         int           `xml:"JB_override_tickets"`
+	Version                 int           `xml:"JB_version"`
+	JobArray                TaskIDRange   `xml:"JB_ja_structure>task_id_range"`
+	Type                    int           `xml:"JB_type"`
+}
+
+// HardResourceList returns the complete list of the hard resource requests made by the job
+func (i JobInfo) HardResourceRequest() []Resource {
+	resources := make([]Resource, 0, len(i.QstatHardResourceList)+len(i.ElementHardResourceList))
+	for _, r := range i.QstatHardResourceList {
+		resources = append(resources, r)
+	}
+	for _, r := range i.ElementHardResourceList {
+		resources = append(resources, r)
+	}
+	return resources
 }
 
 // NumTasks returns the number of tasks in a JobInfo
