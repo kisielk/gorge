@@ -7,7 +7,7 @@ package arco
 
 import (
 	"database/sql"
-	pq "github.com/bmizerany/pq"
+	pq "github.com/lib/pq"
 	"time"
 )
 
