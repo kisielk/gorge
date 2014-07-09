@@ -38,17 +38,17 @@ WHERE j_job_number = $1 AND j_task_number = -1
 ORDER BY j_job_number DESC`
 
 type Job struct {
-	JobNumber      int
-	TaskNumber     int
-	PETaskId       string
-	JobName        string
-	Group          string
-	Owner          string
-	Account        string
-	Priority       string
-	SubmissionTime time.Time
-	Project        string
-	Department     string
+	JobNumber      int       `json:"jobNumber"`
+	TaskNumber     int       `json:"taskNumber"`
+	PETaskId       string    `json:"peTaskId"`
+	JobName        string    `json:"jobName"`
+	Group          string    `json:"group"`
+	Owner          string    `json:"owner"`
+	Account        string    `json:"account"`
+	Priority       string    `json:"priority"`
+	SubmissionTime time.Time `json:"submissionTime"`
+	Project        string    `json:"project"`
+	Department     string    `json:"department"`
 }
 
 // QueryJob queries the job table for information about a job number
@@ -61,27 +61,27 @@ func (d DB) QueryJob(n int) (*Job, error) {
 }
 
 type Accounting struct {
-	JobNumber      int
-	TaskNumber     int
-	PETaskId       string
-	Name           string
-	Group          string
-	Username       string
-	Account        string
-	Project        string
-	Department     string
-	SubmissionTime time.Time
-	ARParent       int
-	StartTime      time.Time
-	EndTime        time.Time
-	WallClockTime  int
-	CPU            float64
-	Memory         float64
-	IO             float64
-	IOWait         float64
-	MaxVMem        float64
-	ExitStatus     int
-	MaxRSS         int
+	JobNumber      int       `json:"jobNumber"`
+	TaskNumber     int       `json:"taskNumber"`
+	PETaskId       string    `json:"peTaskId"`
+	Name           string    `json:"jobName"`
+	Group          string    `json:"group"`
+	Username       string    `json:"userName"`
+	Account        string    `json:"account"`
+	Project        string    `json:"project"`
+	Department     string    `json:"department"`
+	SubmissionTime time.Time `json:"submissionTime"`
+	ARParent       int       `json:"arParent"`
+	StartTime      time.Time `json:"startTime"`
+	EndTime        time.Time `json:"endTime"`
+	WallClockTime  int       `json:"wallClockTime"`
+	CPU            float64   `json:"cpu"`
+	Memory         float64   `json:"memory"`
+	IO             float64   `json:"io"`
+	IOWait         float64   `json:"ioWait"`
+	MaxVMem        float64   `json:"maxVmem"`
+	ExitStatus     int       `json:"exitStatus"`
+	MaxRSS         int       `json:"maxRss"`
 }
 
 // scanAccounting scans a scannable in to an Accounting struct
@@ -100,7 +100,7 @@ FROM view_accounting
 WHERE job_number = $1
 ORDER BY task_number`
 
-// QueryAccounting queries the view_accounting view for accounting information for a job number j. 
+// QueryAccounting queries the view_accounting view for accounting information for a job number j.
 // It returns accounting records for all tasks.
 func (d DB) QueryAccounting(j int) ([]Accounting, error) {
 	rows, err := d.db.Query(accountingQuery, j)
@@ -164,20 +164,20 @@ func (d DB) QueryAccountingTimes(start, end time.Time) ([]Accounting, error) {
 }
 
 type Log struct {
-	JobNumber  int
-	TaskNumber int
-	PETaskId   int
-	JobName    string
-	User       string
-	Account    string
-	Project    string
-	Department string
-	Time       time.Time
-	Event      string
-	State      string
-	Initiator  string
-	Host       string
-	Message    string
+	JobNumber  int       `json:"jobNumber"`
+	TaskNumber int       `json:"taskNumber"`
+	PETaskId   int       `json:"peTaskId"`
+	JobName    string    `json:"jobName"`
+	User       string    `json:"user"`
+	Account    string    `json:"account"`
+	Project    string    `json:"project"`
+	Department string    `json:"department"`
+	Time       time.Time `json:"time"`
+	Event      string    `json:"event"`
+	State      string    `json:"state"`
+	Initiator  string    `json:"initiator"`
+	Host       string    `json:"host"`
+	Message    string    `json:"message"`
 }
 
 const logQuery = `SELECT job_number, task_number, pe_taskid, name, user, account, project, department,
