@@ -19,23 +19,23 @@ import (
 // Resource represents a GridEngine resource request
 // See man 5 sge_complex for a more detailed description of the fields
 type Resource struct {
-	Name        string  `json:"name", xml:"CE_name"`                // The name of the complex resource
-	ValType     int     `json:"valType", xml:"CE_valtype"`          // The type of value
-	StringVal   string  `json:"stringVal", xml:"CE_stringval"`      // The value as a string
-	DoubleVal   float64 `json:"doubleVal", xml:"CE_doubleval"`      // The value as a double
-	RelOp       int     `json:"relOp", xml:"CE_relop"`              // The relation operator used to compare the value
-	Consumable  bool    `json:"consumable", xml:"CE_consumable"`    // True if the resource is a consumable resourece
-	Dominant    bool    `json:"dominant", xml:"CE_dominant"`        // ?
-	PJDoubleVal float64 `json:"pjDoubleVal", xml:"CE_pj_doubleval"` // ?
-	PJDominant  bool    `json:"pjDominant", xml:"CE_pj_dominant"`   // ?
-	Requestable bool    `json:"requestable", xml:"CE_requestable"`  // True if the resource is a requestable resource
-	Tagged      bool    `json:"tagged", xml:"CE_tagged"`            // ?
+	Name        string  `json:"name" xml:"CE_name"`                // The name of the complex resource
+	ValType     int     `json:"valType" xml:"CE_valtype"`          // The type of value
+	StringVal   string  `json:"stringVal" xml:"CE_stringval"`      // The value as a string
+	DoubleVal   float64 `json:"doubleVal" xml:"CE_doubleval"`      // The value as a double
+	RelOp       int     `json:"relOp" xml:"CE_relop"`              // The relation operator used to compare the value
+	Consumable  bool    `json:"consumable" xml:"CE_consumable"`    // True if the resource is a consumable resourece
+	Dominant    bool    `json:"dominant" xml:"CE_dominant"`        // ?
+	PJDoubleVal float64 `json:"pjDoubleVal" xml:"CE_pj_doubleval"` // ?
+	PJDominant  bool    `json:"pjDominant" xml:"CE_pj_dominant"`   // ?
+	Requestable bool    `json:"requestable" xml:"CE_requestable"`  // True if the resource is a requestable resource
+	Tagged      bool    `json:"tagged" xml:"CE_tagged"`            // ?
 }
 
 // MailAddress represents an email address
 type MailAddress struct {
-	User string `json:"user", xml:"MR_user"`
-	Host string `json:"host", xml:"MR_host"`
+	User string `json:"user" xml:"MR_user"`
+	Host string `json:"host" xml:"MR_host"`
 }
 
 // String implements the Stringer interface
@@ -45,22 +45,22 @@ func (a MailAddress) String() string {
 
 // EnvVar represents a job environment variable
 type EnvVar struct {
-	Variable string `json:"variable", xml:"VA_variable"` // The name of the variable
-	Value    string `json:"value", xml:"VA_value"`       // The value of the variable
+	Variable string `json:"variable" xml:"VA_variable"` // The name of the variable
+	Value    string `json:"value" xml:"VA_value"`       // The value of the variable
 }
 
 type PathList struct {
-	Path        string `json:"path", xml:"PN_path"`
-	Host        string `json:"host", xml:"PN_host"`
-	FileHost    string `json:"fileHost", xml:"PN_file_host"`
-	FileStaging bool   `json:"fileStaging", xml:"PN_file_staging"`
+	Path        string `json:"path" xml:"PN_path"`
+	Host        string `json:"host" xml:"PN_host"`
+	FileHost    string `json:"fileHost" xml:"PN_file_host"`
+	FileStaging bool   `json:"fileStaging" xml:"PN_file_staging"`
 }
 
 // TaskIDRange represents a range of job array task identifiers
 type TaskIDRange struct {
-	Min  int `json:"min", xml:"RN_min"`   // The minimum task ID
-	Max  int `json:"max", xml:"RN_max"`   // The maximum task ID
-	Step int `json:"step", xml:"RN_step"` // The ID step size between tasks
+	Min  int `json:"min" xml:"RN_min"`   // The minimum task ID
+	Max  int `json:"max" xml:"RN_max"`   // The maximum task ID
+	Step int `json:"step" xml:"RN_step"` // The ID step size between tasks
 }
 
 // NumTasks returns the number of tasks in a range
@@ -136,73 +136,73 @@ func ParseTaskIDRanges(s string) ([]TaskIDRange, error) {
 }
 
 type JATMessage struct {
-	Type    int    `json:"type", xml:"QIM_type"`
-	Message string `json:"message", xml:"QIM_message"`
+	Type    int    `json:"type" xml:"QIM_type"`
+	Message string `json:"message" xml:"QIM_message"`
 }
 
 type Messages struct {
-	Messages       []SMEMessage `json:"messages", xml:"SME_message_list>element"`
-	GlobalMessages []SMEMessage `json:"globalMessages", xml:"SME_global_message_list>element"`
+	Messages       []SMEMessage `json:"messages" xml:"SME_message_list>element"`
+	GlobalMessages []SMEMessage `json:"globalMessages" xml:"SME_global_message_list>element"`
 }
 
 type SMEMessage struct {
-	JobNumbers []int  `json:"jobNumbers", xml:"MES_job_number_list>ulong_sublist>ULNG_value"`
-	Number     int    `json:"number", xml:"MES_message_number"`
-	Message    string `json:"message", xml:"MES_message"`
+	JobNumbers []int  `json:"jobNumbers" xml:"MES_job_number_list>ulong_sublist>ULNG_value"`
+	Number     int    `json:"number" xml:"MES_message_number"`
+	Message    string `json:"message" xml:"MES_message"`
 }
 
 type Task struct {
-	Status      int          `json:"status", xml:"JAT_status"`
-	TaskNumber  int          `json:"taskNumber", xml:"JAT_task_number"`
-	MessageList []JATMessage `json:"messageList", xml:"JAT_message_list>ulong_sublist"`
+	Status      int          `json:"status" xml:"JAT_status"`
+	TaskNumber  int          `json:"taskNumber" xml:"JAT_task_number"`
+	MessageList []JATMessage `json:"messageList" xml:"JAT_message_list>ulong_sublist"`
 }
 
 type JobInfo struct {
-	JobNumber               int           `json:"jobNumber", xml:"JB_job_number"`
-	AdvanceReservation      int           `json:"advanceReservation", xml:"JB_ar"`
-	ExecFile                string        `json:"execFile", xml:"JB_exec_file"`
-	SubmissionTime          int           `json:"submissionTime", xml:"JB_submission_time"`
-	Owner                   string        `json:"owner", xml:"JB_owner"`
-	Uid                     int           `json:"uid", xml:"JB_uid"`
-	Group                   string        `json:"group", xml:"JB_group"`
-	Gid                     int           `json:"gid", xml:"JB_gid"`
-	Account                 string        `json:"account", xml:"JB_account"`
-	MergeStdErr             bool          `json:"mergeStdErr", xml:"JB_merge_stderr"`
-	MailList                []MailAddress `json:"mailList", xml:"JB_mail_list>element"`
-	Project                 string        `json:"project", xml:"JB_project"`
-	Notify                  bool          `json:"notify", xml:"JB_notify"`
-	JobName                 string        `json:"jobName", xml:"JB_job_name"`
-	StdoutPathList          []PathList    `json:"stdoutPathList", xml:"JB_stdout_path_list>path_list"`
-	AltStdoutPathList       []PathList    `json:"altStdoutPathList", xml:"JB_stdout_path_list>stdout_path_list"` // Alternate stdout path list
-	JobShare                int           `json:"jobShare", xml:"JB_jobshare"`
-	QstatHardResourceList   []Resource    `json:"qstatHardResourceList", xml:"JB_hard_resource_list>qstat_l_requests"` // One type of hard resource list qstat has. Use HardResourceRequest() to get the full list.
-	ElementHardResourceList []Resource    `json:"elementHardResourceList", xml:"JB_hard_resource_list>element"`        // Another type of hard resource list. Use HardResourceRequest() to get the full list.
-	EnvList                 []EnvVar      `json:"envList", xml:"JB_env_list>job_sublist"`
-	JobArgs                 []string      `json:"jobArgs", xml:"JB_job_args>element>ST_name"`
-	ScriptFile              string        `json:"scriptFile", xml:"JB_script_file"`
-	JobArrayTasks           []Task        `json:"jobArrayTasks", xml:"JB_ja_tasks>ulong_sublist"`
-	Cwd                     string        `json:"cwd", xml:"JB_cwd"`
-	StderrPathList          []PathList    `json:"stderrPathList", xml:"JB_stderr_path_list>path_list"`
-	AltStderrPathList       []PathList    `json:"altStderrPathList", xml:"JB_stderr_path_list>stderr_path_list"` // Alternate stderr path list
-	JIDRequestList          []int         `json:"jobIdRequestList", xml:"JB_jid_request_list>element>JRE_job_name"`
-	JIDSuccessorList        []int         `json:"jobIdSuccessorList", xml:"JB_jid_successor_list>ulong_sublist>JRE_job_number"`
-	Deadline                bool          `json:"deadline", xml:"JB_deadline"`
-	ExecutionTime           int           `json:"executionTime", xml:"JB_execution_time"`
-	CheckpointAttr          int           `json:"checkpointAttr", xml:"JB_checkpoint_attr"`
-	CheckpointInterval      int           `json:"checkpointInterval", xml:"JB_checkpoint_interval"`
-	Reserve                 bool          `json:"reserve", xml:"JB_reserve"`
-	MailOptions             int           `json:"mailOptions", xml:"JB_mail_options"`
-	Priority                int           `json:"priority", xml:"JB_priority"`
-	Restart                 int           `json:"restart", xml:"JB_restart"`
-	Verify                  bool          `json:"verify", xml:"JB_verify"`
-	ScriptSize              int           `json:"scriptSize", xml:"JB_script_size"`
-	VerifySuitableQueues    bool          `json:"verifySuitableQueues", xml:"JB_verify_suitable_queues"`
-	SoftWallClockGMT        int           `json:"softWallClockGmt", xml:"JB_soft_wallclock_gmt"`
-	HardWallClockGMT        int           `json:"hardWallClockGmt", xml:"JB_hard_wallclock_gmt"`
-	OverrideTickets         int           `json:"overrideTickets", xml:"JB_override_tickets"`
-	Version                 int           `json:"version", xml:"JB_version"`
-	JobArray                TaskIDRange   `json:"jobArray", xml:"JB_ja_structure>task_id_range"`
-	Type                    int           `json:"type", xml:"JB_type"`
+	JobNumber               int           `json:"jobNumber" xml:"JB_job_number"`
+	AdvanceReservation      int           `json:"advanceReservation" xml:"JB_ar"`
+	ExecFile                string        `json:"execFile" xml:"JB_exec_file"`
+	SubmissionTime          int           `json:"submissionTime" xml:"JB_submission_time"`
+	Owner                   string        `json:"owner" xml:"JB_owner"`
+	Uid                     int           `json:"uid" xml:"JB_uid"`
+	Group                   string        `json:"group" xml:"JB_group"`
+	Gid                     int           `json:"gid" xml:"JB_gid"`
+	Account                 string        `json:"account" xml:"JB_account"`
+	MergeStdErr             bool          `json:"mergeStdErr" xml:"JB_merge_stderr"`
+	MailList                []MailAddress `json:"mailList" xml:"JB_mail_list>element"`
+	Project                 string        `json:"project" xml:"JB_project"`
+	Notify                  bool          `json:"notify" xml:"JB_notify"`
+	JobName                 string        `json:"jobName" xml:"JB_job_name"`
+	StdoutPathList          []PathList    `json:"stdoutPathList" xml:"JB_stdout_path_list>path_list"`
+	AltStdoutPathList       []PathList    `json:"altStdoutPathList" xml:"JB_stdout_path_list>stdout_path_list"` // Alternate stdout path list
+	JobShare                int           `json:"jobShare" xml:"JB_jobshare"`
+	QstatHardResourceList   []Resource    `json:"qstatHardResourceList" xml:"JB_hard_resource_list>qstat_l_requests"` // One type of hard resource list qstat has. Use HardResourceRequest() to get the full list.
+	ElementHardResourceList []Resource    `json:"elementHardResourceList" xml:"JB_hard_resource_list>element"`        // Another type of hard resource list. Use HardResourceRequest() to get the full list.
+	EnvList                 []EnvVar      `json:"envList" xml:"JB_env_list>job_sublist"`
+	JobArgs                 []string      `json:"jobArgs" xml:"JB_job_args>element>ST_name"`
+	ScriptFile              string        `json:"scriptFile" xml:"JB_script_file"`
+	JobArrayTasks           []Task        `json:"jobArrayTasks" xml:"JB_ja_tasks>ulong_sublist"`
+	Cwd                     string        `json:"cwd" xml:"JB_cwd"`
+	StderrPathList          []PathList    `json:"stderrPathList" xml:"JB_stderr_path_list>path_list"`
+	AltStderrPathList       []PathList    `json:"altStderrPathList" xml:"JB_stderr_path_list>stderr_path_list"` // Alternate stderr path list
+	JIDRequestList          []int         `json:"jobIdRequestList" xml:"JB_jid_request_list>element>JRE_job_name"`
+	JIDSuccessorList        []int         `json:"jobIdSuccessorList" xml:"JB_jid_successor_list>ulong_sublist>JRE_job_number"`
+	Deadline                bool          `json:"deadline" xml:"JB_deadline"`
+	ExecutionTime           int           `json:"executionTime" xml:"JB_execution_time"`
+	CheckpointAttr          int           `json:"checkpointAttr" xml:"JB_checkpoint_attr"`
+	CheckpointInterval      int           `json:"checkpointInterval" xml:"JB_checkpoint_interval"`
+	Reserve                 bool          `json:"reserve" xml:"JB_reserve"`
+	MailOptions             int           `json:"mailOptions" xml:"JB_mail_options"`
+	Priority                int           `json:"priority" xml:"JB_priority"`
+	Restart                 int           `json:"restart" xml:"JB_restart"`
+	Verify                  bool          `json:"verify" xml:"JB_verify"`
+	ScriptSize              int           `json:"scriptSize" xml:"JB_script_size"`
+	VerifySuitableQueues    bool          `json:"verifySuitableQueues" xml:"JB_verify_suitable_queues"`
+	SoftWallClockGMT        int           `json:"softWallClockGmt" xml:"JB_soft_wallclock_gmt"`
+	HardWallClockGMT        int           `json:"hardWallClockGmt" xml:"JB_hard_wallclock_gmt"`
+	OverrideTickets         int           `json:"overrideTickets" xml:"JB_override_tickets"`
+	Version                 int           `json:"version" xml:"JB_version"`
+	JobArray                TaskIDRange   `json:"jobArray" xml:"JB_ja_structure>task_id_range"`
+	Type                    int           `json:"type" xml:"JB_type"`
 }
 
 // HardResourceList returns the complete list of the hard resource requests made by the job
@@ -230,31 +230,31 @@ type DetailedJobInfo struct {
 
 // QueueJob represents data about one job in the queue overview
 type QueueJob struct {
-	JobNumber            int     `json:"jobNumber", xml:"JB_job_number"`           // Unique job number
-	POSIXPriority        int     `json:"posixPriority", xml:"JB_priority"`         //  Relative importance due to Posix priority in the range between 0.0 and 1.0
-	NormalizedUrgency    float64 `json:"normalizedUrgency", xml:"JB_nurg"`         // Relative importance due to static urgency in the range between 0.0 and 1.0
-	NormalizedPriority   float64 `json:"normalizedPriority", xml:"JAT_prio"`       // The GE priority derived from weighted normalized tickets and weighted normalized static urgency
-	NormalizedTickets    float64 `json:"normalizedTickets", xml:"JAT_ntix"`        //  Relative importance due to JAT_tix amount in the range between 0.0 and 1.0.
-	ResourceContribution float64 `json:"resourceContribution", xml:"JB_rrcontr"`   //  Combined contribution to static urgency from all resources.
-	DeadlineContribution float64 `json:"deadlineContribution", xml:"JB_dlcontr"`   // Contribution to static urgency from job deadline.
-	WaitTimeContribution float64 `json:"waitTimeContribution", xml:"JB_wtcontr"`   // Contribution to static urgency from waiting time.
-	Name                 string  `json:"name", xml:"JB_name"`                      // Job name
-	Owner                string  `json:"owner", xml:"JB_owner"`                    // Owner of the job
-	Project              string  `json:"project", xml:"JB_project"`                // Project name
-	Department           string  `json:"department", xml:"JB_department"`          // Department name
-	State                string  `json:"state", xml:"state"`                       // State string
-	StartTime            string  `json:"startTime", xml:"JAT_start_time"`          // Task start time
-	SubmissionTime       string  `json:"submissionTime", xml:"JB_submission_time"` // Time the job was submitted
-	CPUUsage             float64 `json:"cpuUsage", xml:"cpu_usage"`                // CPU usage in seconds
-	MemUsage             float64 `json:"memUsage", xml:"mem_usage"`                // Memory usage in MB * seconds
-	IOUsage              float64 `json:"ioUsage", xml:"io_usage"`                  // IO usage in MB
-	Tickets              int     `json:"tickets", xml:"tickets"`                   // Number of assigned tickets
-	OverrideTickets      int     `json:"overrideTickets", xml:"otickets"`          // Number of assigned override tickets
-	FairshareTickets     int     `json:"fairShareTickets", xml:"ftickets"`         // Number of assigned fairshare tickets
-	ShareTreeTickets     int     `json:"shareTreeTickets", xml:"stickets"`         // Number of assigned sharetree tickets
-	QueueName            string  `json:"queueName", xml:"queue_name"`              // Queue in which the job is executing
-	Slots                int     `json:"slots", xml:"slots"`                       // Number of slots
-	Tasks                string  `json:"tasks", xml:"tasks"`                       // Task string
+	JobNumber            int     `json:"jobNumber" xml:"JB_job_number"`           // Unique job number
+	POSIXPriority        int     `json:"posixPriority" xml:"JB_priority"`         //  Relative importance due to Posix priority in the range between 0.0 and 1.0
+	NormalizedUrgency    float64 `json:"normalizedUrgency" xml:"JB_nurg"`         // Relative importance due to static urgency in the range between 0.0 and 1.0
+	NormalizedPriority   float64 `json:"normalizedPriority" xml:"JAT_prio"`       // The GE priority derived from weighted normalized tickets and weighted normalized static urgency
+	NormalizedTickets    float64 `json:"normalizedTickets" xml:"JAT_ntix"`        //  Relative importance due to JAT_tix amount in the range between 0.0 and 1.0.
+	ResourceContribution float64 `json:"resourceContribution" xml:"JB_rrcontr"`   //  Combined contribution to static urgency from all resources.
+	DeadlineContribution float64 `json:"deadlineContribution" xml:"JB_dlcontr"`   // Contribution to static urgency from job deadline.
+	WaitTimeContribution float64 `json:"waitTimeContribution" xml:"JB_wtcontr"`   // Contribution to static urgency from waiting time.
+	Name                 string  `json:"name" xml:"JB_name"`                      // Job name
+	Owner                string  `json:"owner" xml:"JB_owner"`                    // Owner of the job
+	Project              string  `json:"project" xml:"JB_project"`                // Project name
+	Department           string  `json:"department" xml:"JB_department"`          // Department name
+	State                string  `json:"state" xml:"state"`                       // State string
+	StartTime            string  `json:"startTime" xml:"JAT_start_time"`          // Task start time
+	SubmissionTime       string  `json:"submissionTime" xml:"JB_submission_time"` // Time the job was submitted
+	CPUUsage             float64 `json:"cpuUsage" xml:"cpu_usage"`                // CPU usage in seconds
+	MemUsage             float64 `json:"memUsage" xml:"mem_usage"`                // Memory usage in MB * seconds
+	IOUsage              float64 `json:"ioUsage" xml:"io_usage"`                  // IO usage in MB
+	Tickets              int     `json:"tickets" xml:"tickets"`                   // Number of assigned tickets
+	OverrideTickets      int     `json:"overrideTickets" xml:"otickets"`          // Number of assigned override tickets
+	FairshareTickets     int     `json:"fairShareTickets" xml:"ftickets"`         // Number of assigned fairshare tickets
+	ShareTreeTickets     int     `json:"shareTreeTickets" xml:"stickets"`         // Number of assigned sharetree tickets
+	QueueName            string  `json:"queueName" xml:"queue_name"`              // Queue in which the job is executing
+	Slots                int     `json:"slots" xml:"slots"`                       // Number of slots
+	Tasks                string  `json:"tasks" xml:"tasks"`                       // Task string
 }
 
 // NumTasks returns the number of tasks in a QueueJob
@@ -327,18 +327,18 @@ func (j QueueJob) QueuedState() bool {
 }
 
 type Queue struct {
-	Name          string     `json:"name", xml:"name"`
-	QType         string     `json:"qType", xml:"qtype"`
-	SlotsUsed     int        `json:"slotsUsed", xml:"slots_used"`
-	SlotsReserved int        `json:"slotsReserved", xml:"slots_resv"`
-	SlotsTotal    int        `json:"slotsTotal", xml:"slots_total"`
-	Arch          string     `json:"arch", xml:"arch"`
-	Joblist       []QueueJob `json:"jobList", xml:"job_list"`
+	Name          string     `json:"name" xml:"name"`
+	QType         string     `json:"qType" xml:"qtype"`
+	SlotsUsed     int        `json:"slotsUsed" xml:"slots_used"`
+	SlotsReserved int        `json:"slotsReserved" xml:"slots_resv"`
+	SlotsTotal    int        `json:"slotsTotal" xml:"slots_total"`
+	Arch          string     `json:"arch" xml:"arch"`
+	Joblist       []QueueJob `json:"jobList" xml:"job_list"`
 }
 
 type QueueInfo struct {
-	QueuedJobs  []QueueJob `json:"queuedJobs", xml:"queue_info>job_list"` // A list of jobs currently assigned to queues, eg: executing
-	PendingJobs []QueueJob `json:"pendingJobs", xml:"job_info>job_list"`  // A list of jobs that are not yet executing in any queue
+	QueuedJobs  []QueueJob `json:"queuedJobs" xml:"queue_info>job_list"` // A list of jobs currently assigned to queues, eg: executing
+	PendingJobs []QueueJob `json:"pendingJobs" xml:"job_info>job_list"`  // A list of jobs that are not yet executing in any queue
 }
 
 // absPaths converts the paths of a list of PathList structs in to absolute paths of root if they are not already absolute.
