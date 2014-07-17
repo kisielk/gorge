@@ -210,7 +210,7 @@ func (d DB) QueryLogs(j, t int) ([]Log, error) {
 			return nil, err
 		}
 		t, err := strconv.ParseInt(peTaskId, 10, 64)
-		if err != nil {
+		if err == nil {
 			// If there's no parallel environment, PE task ID is "NONE"
 			l.PETaskId = int(t)
 		}
