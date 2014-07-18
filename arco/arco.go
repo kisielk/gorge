@@ -8,6 +8,7 @@ package arco
 import (
 	"database/sql"
 	pq "github.com/lib/pq"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +30,10 @@ func Open(url string) (*DB, error) {
 	}
 	db, err := sql.Open("postgres", dsn)
 	return &DB{db}, err
+}
+
+func (d DB) Close() error {
+	return d.db.Close()
 }
 
 const jobQuery = `SELECT j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, j_owner, 
@@ -93,9 +98,9 @@ func scanAccounting(r scannable) (*Accounting, error) {
 	return &a, err
 }
 
-const accountingQuery = `SELECT job_number, task_number, pe_taskid, name, \"group\",
+const accountingQuery = `SELECT job_number, task_number, pe_taskid, name, "group",
 username, account, project, department, submission_time, ar_parent, start_time, end_time,
-wallclock_time, cpu, mem, io, iow, maxvmem, exit_status, maxrss,
+wallclock_time, cpu, mem, io, iow, maxvmem, exit_status, maxrss
 FROM view_accounting 
 WHERE job_number = $1
 ORDER BY task_number`
@@ -198,13 +203,47 @@ func (d DB) QueryLogs(j, t int) ([]Log, error) {
 
 	for rows.Next() {
 		var l Log
-		err := rows.Scan(&l.JobNumber, &l.TaskNumber, &l.PETaskId, &l.JobName, &l.User, &l.Account, &l.Project, &l.Department,
+		var peTaskId string
+		err := rows.Scan(&l.JobNumber, &l.TaskNumber, &peTaskId, &l.JobName, &l.User, &l.Account, &l.Project, &l.Department,
 			&l.Time, &l.Event, &l.State, &l.Initiator, &l.Host, &l.Message)
 		if err != nil {
 			return nil, err
+		}
+		t, err := strconv.ParseInt(peTaskId, 10, 64)
+		if err == nil {
+			// If there's no parallel environment, PE task ID is "NONE"
+			l.PETaskId = int(t)
 		}
 		logs = append(logs, l)
 	}
 
 	return logs, err
+}
+
+const requestQuery = `SELECT jr_variable, jr_value
+FROM sge_job, sge_job_request
+WHERE sge_job_request.jr_parent = sge_job.j_id
+  AND sge_job.j_job_number = $1
+`
+
+type Request map[string]string
+
+func (d DB) QueryRequest(j int) (Request, error) {
+	rows, err := d.db.Query(requestQuery, j)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make(Request)
+	for rows.Next() {
+		var key, value string
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			return nil, err
+		}
+		result[key] = value
+	}
+
+	return result, nil
 }
