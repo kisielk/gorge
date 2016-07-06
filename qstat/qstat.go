@@ -326,19 +326,28 @@ func (j QueueJob) QueuedState() bool {
 	return strings.Contains(j.State, "q")
 }
 
+// QueueResource describes a single consumable resource in a queue.
+type QueueResource struct {
+	Name  string `json:"name" xml:"name,attr"`
+	Type  string `json:"type" xml:"type,attr"`
+	Value string `json:"value" xml:",chardata"`
+}
+
 type Queue struct {
-	Name          string     `json:"name" xml:"name"`
-	QType         string     `json:"qType" xml:"qtype"`
-	SlotsUsed     int        `json:"slotsUsed" xml:"slots_used"`
-	SlotsReserved int        `json:"slotsReserved" xml:"slots_resv"`
-	SlotsTotal    int        `json:"slotsTotal" xml:"slots_total"`
-	Arch          string     `json:"arch" xml:"arch"`
-	Joblist       []QueueJob `json:"jobList" xml:"job_list"`
+	Name          string          `json:"name" xml:"name"`
+	QType         string          `json:"qType" xml:"qtype"`
+	SlotsUsed     int             `json:"slotsUsed" xml:"slots_used"`
+	SlotsReserved int             `json:"slotsReserved" xml:"slots_resv"`
+	SlotsTotal    int             `json:"slotsTotal" xml:"slots_total"`
+	Arch          string          `json:"arch" xml:"arch"`
+	Joblist       []QueueJob      `json:"jobList" xml:"job_list"`
+	Resources     []QueueResource `json:"resources" xml:"resource"`
 }
 
 type QueueInfo struct {
 	QueuedJobs  []QueueJob `json:"queuedJobs" xml:"queue_info>job_list"` // A list of jobs currently assigned to queues, eg: executing
 	PendingJobs []QueueJob `json:"pendingJobs" xml:"job_info>job_list"`  // A list of jobs that are not yet executing in any queue
+	Queues      []Queue    `json:"queues" xml:"queue_info>Queue-List"`   // A list of available queues (qstat -F)
 }
 
 // absPaths converts the paths of a list of PathList structs in to absolute paths of root if they are not already absolute.
